@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Git Internals</title>
+<meta charset="utf-8">
+<style>
+
+@import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+@import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+@import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+body {
+    font-family: 'Droid Serif';
+}
+h1, h2, h3 {
+    font-family: 'Yanone Kaffeesatz';
+    font-weight: normal;
+}
+.remark-code, .remark-inline-code {
+    font-family: 'Ubuntu Mono';
+}
+img[alt=merkel] {
+    width: 100%;
+    margin: -33px 0 0 23px;
+}
+
+</style>
+</head>
+<body>
+<textarea id="source">
+
+class: center, middle
+
+# Git Internals
+
+---
+
+# Why learn about the internals of git?
+
+ - git is how the world builds software
+   - from github: "over 5.5M repositories were created this year (2013)"
+ - you'll become better at collaborating
+ - when things go belly up you have hope
+ - there are actually some interesting data structures and algorithms in git
+
+---
+
+# What is git?
+
+Git is a content addressable, distributed, key value store:
+
+ - key value store
+ - content addressable (keys are derrived from values)
+ - distributed (basically a CRDT G-Set with gc)
+
+---
+
+# Merkel Trees
+
+![merkel](./merkel-tree.png)
+
+---
+
+class: center, middle
+
+# Merkel Tree Demo
+
+---
+
+# Directed Acyclic Graph (DAG)
+
+<div style="width: 512px; overflow: hidden;height: 480px;margin-left: 130px;" onclick="document.querySelector('#dag-video').play()">
+<video id="dag-video" src="./dag-edited.mp4" style="width: 856px;margin-left: -172px;"></video>
+</div>
+
+---
+
+class: center, middle
+
+# DAG Demo
+
+---
+
+# Types of Objects
+
+ - blob
+    - file contents
+ - tree
+    - points to other blobs and trees
+    - mode information (execution bit, etc)
+    - names for the blobs and trees
+ - commit:
+    - points to a single tree
+    - points to 0-N parent commits
+    - author+timestamp
+    - commiter+timestamp
+    - commit message
+ - tag (annotated)
+    - points to another object (likely a commit but any object will do)
+    - type of the object it points to
+    - tag name
+    - tagger+timestamp
+    - tag message
+
+---
+
+class: center, middle
+
+# Objects Demo
+
+---
+
+# Refering to commits
+
+ - refs (point to a specific sha1)
+     - branches
+     - light weight tags
+ - revs (any expression that resolves to a sha1)
+
+---
+
+# Refs
+
+ - HEAD (a symbolic ref)
+ - local branches (heads)
+ - remote branchs (remotes)
+ - tags (lightweight)
+
+---
+
+class: center, middle
+
+# Refs Demo
+
+---
+
+# Revs
+
+ - use `git rev-parse` to resolve any rev to a sha1
+
+Examples:
+
+ - sha fragment: a4675b0
+ - refs: HEAD master
+ - @ alone (alias for head)
+ - walking parents: HEAD^ HEAD^2 HEAD~3
+ - time suffix: @{2.days.ago} master@{yesterday}
+ - text search: :/text HEAD^{/text}
+ - object type: master@{tree}
+ - blobs: HEAD:README.md
+ - reflog: master@{2} @{3}
+ - previously checked out branches: @{-1}
+ - upstreams: @{upstream} master@{push}
+
+---
+
+# Ranges
+
+- resolve to multiple sha1s
+
+Examples:
+
+ - master
+ - ^master feature
+ - master..develop
+ - master...develop
+ - master^@
+
+---
+
+class: center, middle
+
+# Thanks! Questions?
+
+github.com/jasonkeene
+
+</textarea>
+<script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
+</script>
+<script>
+var slideshow = remark.create();
+</script>
+</body>
+</html>
